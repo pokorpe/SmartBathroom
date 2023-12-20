@@ -1,0 +1,53 @@
+alias: BathroomExhaustFan
+description: Regulace vlhkosti v koupelně
+trigger:
+  - platform: numeric_state
+    entity_id: sensor.bathroomhumichange
+    above: 3.8
+  - platform: state
+    entity_id:
+      - switch.exhaust_fan
+    from: "off"
+    to: "on"
+  - platform: numeric_state
+    entity_id: sensor.sensnode_humidity
+    above: 70
+condition: []
+action:
+  - service: switch.turn_on
+    data: {}
+    target:
+      device_id: ********************************
+  - delay:
+      hours: 0
+      minutes: 3
+      seconds: 0
+      milliseconds: 0
+  - if:
+      - condition: numeric_state
+        entity_id: sensor.sensnode_humidity
+        above: 60
+    then:
+      - wait_for_trigger:
+          - platform: numeric_state
+            entity_id: sensor.sensnode_humidity
+            below: 60
+            for:
+              hours: 0
+              minutes: 2
+              seconds: 0
+        timeout:
+          hours: 0
+          minutes: 35
+          seconds: 0
+          milliseconds: 0
+      - type: turn_off
+        device_id: ********************************
+        entity_id: ********************************
+        domain: switch
+    else:
+      - type: turn_off
+        device_id: ********************************
+        entity_id: ********************************
+        domain: switch
+mode: single
