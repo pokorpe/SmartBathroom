@@ -1,0 +1,75 @@
+esphome:
+  name: sensor-node-1
+  platform: ESP8266
+  board: nodemcuv2
+  compile_process_limit: 1
+
+#Enable logging
+logger:
+
+# Enable Home Assistant API
+api:
+
+ota:
+  password: "***************************"
+
+wifi:
+  ssid: "***************************"
+  password: "***************************"
+  manual_ip:
+    static_ip: ***************************
+    gateway: ***************************
+    subnet: ***************************
+    dns1: ***************************
+    dns2: ***************************
+
+  # Enable fallback hotspot (captive portal) in case wifi connection fails
+  ap:
+    ssid: "Sensor-Node-1 Fallback Hotspot"
+    password: "***************************"
+
+captive_portal:
+
+# DHT temp+hum
+sensor:
+  - platform: dht
+    pin: D7
+    model: dht22
+    temperature:
+      name: "SenseNode Temp"
+    humidity:
+      name: "SensNode Humidity"
+      accuracy_decimals: 1
+    update_interval: 15s
+    
+    # T6000 Lumi
+  - platform: adc
+    pin: A0
+    name: "SenseNode Lux"
+    unit_of_measurement: lx
+    filters:
+      - lambda: |-
+          return (x / 10000.0) * 2000000.0;
+    update_interval: 60s
+    
+# PIR motion
+binary_sensor:
+  - platform: gpio
+    pin: D6
+    name: "SenseNode Motion"
+    device_class: motion
+    
+# Svetilko
+light:
+  - platform: neopixelbus
+    type: GRB
+    variant: WS2811
+    pin: D3
+    num_leds: 1
+    name: "SenseNode LED"
+    
+# Onborad LED vypnutí
+status_led:
+  pin:
+    number: D4
+    inverted: True
